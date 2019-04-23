@@ -10,9 +10,16 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Created by Kerisnarendra on 15/04/2019.
  */
+
+/**
+ * Modified by Syarif Hidayat on 22/04/2019.
+ * 
+ * 1. Add Long data type in IBaseRepository
+ */
+
 public class BaseService<T extends BaseModel> {
     @Autowired
-    private IBaseRepository<T> repository;
+    private IBaseRepository<T, Long> repository;
 
     @GetMapping
     public Page<T> read(Pageable pageable) {

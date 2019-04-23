@@ -14,6 +14,13 @@ import javax.persistence.Id;
 /**
  * Created by Kerisnarendra on 15/04/2019.
  */
+
+/**
+ * Modified by Syarif Hidayat on 22/04/2019.
+ * 1. add username, role and isEnabled field
+ * 2. add getter/setter methods.
+ */
+
 @Setter
 @Getter
 @Entity
@@ -90,6 +97,20 @@ public class User extends BaseModel{
 	 */
 	public void setEnabled(boolean isEnabled) {
 		this.isEnabled = isEnabled;
+	}
+
+	/**
+	 * @return the role
+	 */
+	public String getRole() {
+		return role;
+	}
+
+	/**
+	 * @param role the role to set
+	 */
+	public void setRole(String role) {
+		this.role = role;
 	}
 	
     
