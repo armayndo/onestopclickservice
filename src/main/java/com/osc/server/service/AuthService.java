@@ -3,6 +3,7 @@ package com.osc.server.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.osc.common.AuthenticationRequest;
@@ -21,6 +23,8 @@ import com.osc.server.repository.IUserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -45,19 +49,17 @@ public class AuthService {
 
     private Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    @PostMapping("/signin")
-    public ResponseEntity signin(@RequestBody AuthenticationRequest data) {
+    @RequestMapping(value="/signin", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity signin(HttpServletRequest request) {
 
         try {
-            String username = data.getUsername();
+            String username = request.getParameter("username");
             logger.info("Username from client: "+ username);
-            logger.info("Pasword from client: "+ data.getPassword());
-            //logger.info("Encoded Pasword from client: "+ new BCryptPasswordEncoder().encode(data.getPassword()));
-            //authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
-
+            logger.info("Pasword from client: "+ request.getParameter("password"));
+            
 
             try {
-                authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
+                authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, request.getParameter("password")));
             } catch (DisabledException e) {
                 throw new DisabledException("User is disabled!", e);
             } catch (BadCredentialsException e) {
