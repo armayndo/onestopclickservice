@@ -1,13 +1,16 @@
 package com.osc.server.service;
 
+import com.osc.exception.ResourceNotFoundException;
+import com.osc.server.model.Role;
 import com.osc.server.model.User;
-import com.osc.server.repository.IBaseRepository;
+import com.osc.server.repository.IRoleRepository;
 import com.osc.server.repository.IUserRepository;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,10 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +31,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserService extends BaseService<User> {
 	
 	@Autowired
-    private IUserRepository repository;
-	
+	private IUserRepository userRepository;
+
+	@Autowired
+	private IRoleRepository roleRepository;
+
 	private Logger logger = LoggerFactory.getLogger(UserService.class);
 	
 	/*This service use to register new user using form-data format from frontend WEB UI*/
@@ -45,7 +47,7 @@ public class UserService extends BaseService<User> {
 				 
 		try {
 			String username = request.getParameter("username");
-			if(repository.findByUsername(username) == null) {
+			if(userRepository.findByUsername(username) == null) {
 				user.setUsername(username);
 				user.setPassword(new BCryptPasswordEncoder().encode(request.getParameter("password")));
 				user.setFirstName(request.getParameter("firstname"));
@@ -54,7 +56,7 @@ public class UserService extends BaseService<User> {
 				user.setRole(request.getParameter("role"));	
 				logger.info("Enabled: "+Boolean.parseBoolean(request.getParameter("enabled")));
 				user.setEnabled(Boolean.parseBoolean(request.getParameter("enabled")));
-				repository.save(user);
+				userRepository.save(user);
 		        model.put("user", user);
 			}else
 			{
@@ -67,5 +69,27 @@ public class UserService extends BaseService<User> {
 		 
 		return ok(model);
 	 }
+
+	@GetMapping("/{userId}/roles")
+	public Set<Role> getRoles(@PathVariable Long userId){
+		// Finds user by id and returns it's recorded roles, otherwise throws exception
+		return this.userRepository.findById(userId).map((user) -> {
+			return user.getRoles();
+		}).orElseThrow(() -> new ResourceNotFoundException("User", userId));
+	}
+
+	@PostMapping("/{id}/roles/{roleId}") // Path variable names must match with method's signature variables.
+	public Set<Role> addRole(@PathVariable Long id, @PathVariable Long roleId){
+		// Finds a persisted role
+		Role role = this.roleRepository.findById(roleId).orElseThrow(
+				() -> new ResourceNotFoundException("Role", roleId)
+		);
+
+		// Finds a user and adds the given role to the user's set.
+		return this.userRepository.findById(id).map((user) -> {
+			user.getRoles().add(role);
+			return this.userRepository.save(user).getRoles();
+		}).orElseThrow(() -> new ResourceNotFoundException("User", id));
+	}
 }
 
