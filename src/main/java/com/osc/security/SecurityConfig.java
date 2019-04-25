@@ -103,9 +103,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	     http
 	     
 	     	.httpBasic().disable()
+	     	
 	        .csrf().disable()
 	        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	        .and()
+	        .cors().and()
 	        .authorizeRequests()
 	        .antMatchers("/auth/signin").permitAll()
 	        //.antMatchers(HttpMethod.GET, "/**").permitAll()
