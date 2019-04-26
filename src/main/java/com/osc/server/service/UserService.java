@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Created by Kerisnarendra on 15/04/2019.
 */
-@CrossOrigin(origins="http://localhost:3000") // added by Tommy 25/04/2019
+//@CrossOrigin(origins="http://localhost:3000") // added by Tommy 25/04/2019
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserService extends BaseService<User> {
 	
-
+	@Autowired
 	private IUserRepository userRepository;
 
 	@Autowired
@@ -62,10 +62,10 @@ public class UserService extends BaseService<User> {
 				//user.setEnabled(Boolean.parseBoolean(request.getParameter("enabled")));
 				user.setEnabled(true);
 				userRepository.save(user);
-				user.setRole(request.getParameter("role"));	
-				logger.info("Enabled: "+Boolean.parseBoolean(request.getParameter("enabled")));
-				user.setEnabled(Boolean.parseBoolean(request.getParameter("enabled")));
-				userRepository.save(user);
+				//user.setRole(request.getParameter("role"));	
+				//logger.info("Enabled: "+Boolean.parseBoolean(request.getParameter("enabled")));
+				//user.setEnabled(Boolean.parseBoolean(request.getParameter("enabled")));
+				//userRepository.save(user);
 		        model.put("user", user);
 			}else
 			{
@@ -146,5 +146,18 @@ public class UserService extends BaseService<User> {
 		}).orElseThrow(() -> new ResourceNotFoundException("User", id));
 	}
 
+	@DeleteMapping("/{id}/roles/{roleId}") // Path variable names must match with method's signature variables.
+	public Set<Role> removeRole(@PathVariable Long id, @PathVariable Long roleId){
+		// Finds a persisted role
+		Role role = this.roleRepository.findById(roleId).orElseThrow(
+				() -> new ResourceNotFoundException("Role", roleId)
+		);
+
+		// Finds a user and adds the given role to the user's set.
+		return this.userRepository.findById(id).map((user) -> {
+			user.getRoles().remove(role);
+			return this.userRepository.save(user).getRoles();
+		}).orElseThrow(() -> new ResourceNotFoundException("User", id));
+	}
 }
 
