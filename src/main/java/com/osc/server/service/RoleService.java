@@ -7,6 +7,7 @@ import com.osc.server.model.User;
 import com.osc.server.repository.IPermissionRepository;
 import com.osc.server.repository.IRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -49,6 +50,20 @@ public class RoleService extends BaseService<Role> {
         // Finds a role and adds the given permission to the role's set.
         return this.roleRepository.findById(id).map((role) -> {
             role.getPermissions().add(permission);
+            return this.roleRepository.save(role).getPermissions();
+        }).orElseThrow(() -> new ResourceNotFoundException("Role", id));
+    }
+
+    @DeleteMapping("/{id}/permissions/{permissionId}") // Path variable names must match with method's signature variables.
+    public Set<Permission> removePermission(@PathVariable Long id, @PathVariable Long permissionId){
+        // Finds a persisted permission
+        Permission permission = this.permissionRepository.findById(permissionId).orElseThrow(
+                () -> new ResourceNotFoundException("Permission", permissionId)
+        );
+
+        // Finds a role and adds the given permission to the role's set.
+        return this.roleRepository.findById(id).map((role) -> {
+            role.getPermissions().remove(permission);
             return this.roleRepository.save(role).getPermissions();
         }).orElseThrow(() -> new ResourceNotFoundException("Role", id));
     }

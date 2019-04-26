@@ -91,5 +91,19 @@ public class UserService extends BaseService<User> {
 			return this.userRepository.save(user).getRoles();
 		}).orElseThrow(() -> new ResourceNotFoundException("User", id));
 	}
+
+	@DeleteMapping("/{id}/roles/{roleId}") // Path variable names must match with method's signature variables.
+	public Set<Role> removeRole(@PathVariable Long id, @PathVariable Long roleId){
+		// Finds a persisted role
+		Role role = this.roleRepository.findById(roleId).orElseThrow(
+				() -> new ResourceNotFoundException("Role", roleId)
+		);
+
+		// Finds a user and adds the given role to the user's set.
+		return this.userRepository.findById(id).map((user) -> {
+			user.getRoles().remove(role);
+			return this.userRepository.save(user).getRoles();
+		}).orElseThrow(() -> new ResourceNotFoundException("User", id));
+	}
 }
 
