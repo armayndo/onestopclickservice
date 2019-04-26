@@ -6,6 +6,7 @@ import com.osc.server.model.Role;
 import com.osc.server.model.User;
 import com.osc.server.repository.IPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import java.util.Set;
 /**
  * Created by Kerisnarendra on 25/04/2019.
 */
+@CrossOrigin(origins="http://localhost:3000") // added by Tommy 26/04/2019
 @RestController
 @RequestMapping("/api/v1/permissions")
 public class PermissionService extends BaseService<Permission> {
