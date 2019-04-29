@@ -8,18 +8,24 @@ import com.osc.server.repository.IUserRepository;
 
 
 import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.badRequest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,14 +64,8 @@ public class UserService extends BaseService<User> {
 				user.setLastName(request.getParameter("lastname"));	
 				user.setEmail(request.getParameter("email"));
 				user.setRole("User");	
-				//logger.info("Enabled: "+Boolean.parseBoolean(request.getParameter("enabled")));
-				//user.setEnabled(Boolean.parseBoolean(request.getParameter("enabled")));
 				user.setEnabled(true);
 				userRepository.save(user);
-				//user.setRole(request.getParameter("role"));	
-				//logger.info("Enabled: "+Boolean.parseBoolean(request.getParameter("enabled")));
-				//user.setEnabled(Boolean.parseBoolean(request.getParameter("enabled")));
-				//userRepository.save(user);
 		        model.put("user", user);
 			}else
 			{
@@ -74,6 +74,7 @@ public class UserService extends BaseService<User> {
 				                
 	    } catch (Exception e) {
 	    	model.put("Error", e.getMessage());
+	    	return new ResponseEntity(HttpStatus.BAD_REQUEST);
 	    }
 		 
 		return ok(model);
@@ -159,5 +160,62 @@ public class UserService extends BaseService<User> {
 			return this.userRepository.save(user).getRoles();
 		}).orElseThrow(() -> new ResourceNotFoundException("User", id));
 	}
+	
+	@DeleteMapping("/user/delete/{id}")
+	public ResponseEntity<Map> DeleteUser(@PathVariable Long id){
+		Map<Object, Object> model = new HashMap<>();
+		User user = null;
+		String appUsername = this.getCurrentUsername();
+		logger.info("Application Username: "+appUsername);
+		Set<String> roles = this.getCurrentUsernameRole();
+		
+		for(String role : roles) {
+			logger.info("Username Role: "+role);
+		}
+		
+	    try {
+	    	try {
+	    		user = userRepository.findById(id).get();
+		    }catch(ResourceNotFoundException e){
+		    	model.put("Error", "User cannot be found");
+		    	return ok(model);
+		    }
+	    	userRepository.delete(user);
+	    	model.put("User", user);
+	    }catch(Exception e) {
+	    	model.put("Error", e.getMessage());
+	    	return ok(model);
+	    }
+		
+		return ok(model);
+	}
+	
+	/*This function will return the current login-application username*/
+	public String getCurrentUsername() {
+		 
+		 String username;
+		 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		 
+		 if (principal instanceof UserDetails) {
+		   username = ((UserDetails)principal).getUsername();
+		 } else {
+		   username = principal.toString();
+		 }
+		 
+		 return username;
+	 }
+	
+	/*This function will return the current login-application username*/
+	public Set<String> getCurrentUsernameRole() {
+		 
+		 Set<String> role = null;
+		 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		 
+		 if (principal instanceof UserDetails) {
+		   role = ((UserDetails)principal).getAuthorities().stream().map(r -> r.getAuthority()).collect(Collectors.toSet());
+		 }
+		 
+		 return role;
+	 }
 }
 
