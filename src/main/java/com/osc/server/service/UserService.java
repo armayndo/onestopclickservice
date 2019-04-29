@@ -63,7 +63,7 @@ public class UserService extends BaseService<User> {
 				user.setFirstName(request.getParameter("firstname"));
 				user.setLastName(request.getParameter("lastname"));	
 				user.setEmail(request.getParameter("email"));
-				user.setRole("User");	
+				user.setRole("ROLE_USER");	
 				user.setEnabled(true);
 				userRepository.save(user);
 		        model.put("user", user);
