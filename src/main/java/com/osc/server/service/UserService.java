@@ -50,7 +50,7 @@ public class UserService extends BaseService<User> {
 	*/
 	/*This service use to register new user using form-data format from frontend WEB UI*/
 	@RequestMapping(value="/register", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<Map> signin(HttpServletRequest request) {
+	public ResponseEntity<Map> register(HttpServletRequest request) {
 
 		Map<Object, Object> model = new HashMap<>();
 		User user = new User();
