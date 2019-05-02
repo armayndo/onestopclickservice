@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Created by Kerisnarendra on 15/04/2019.
 */
-//@CrossOrigin(origins="http://localhost:3000") // added by Tommy 25/04/2019
+@CrossOrigin(origins= {"http://localhost:3000", "http://localhost:63342" }) // added by Tommy 25/04/2019
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserService extends BaseService<User> {
