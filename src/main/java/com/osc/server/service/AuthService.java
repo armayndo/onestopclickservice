@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.osc.server.model.Token;
 import com.osc.common.AuthenticationRequest;
 import com.osc.security.jwt.JwtTokenProvider;
+import com.osc.server.repository.ITokenRepository;
 import com.osc.server.repository.IUserRepository;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +39,9 @@ public class AuthService extends CrossOriginService{
    /* @Autowired
     AuthenticationManager authenticationManager;*/
 
+	@Autowired
+	ITokenRepository tokenRepository;
+	
     @Autowired
     AuthenticationProvider authenticationProvider;
 
@@ -71,8 +77,21 @@ public class AuthService extends CrossOriginService{
 
 
             String token = jwtTokenProvider.createToken(username, this.users.findByUsername(username).getRole());
-
             logger.info("Generated Token: "+ token);
+            
+            /*
+             * Save generated token with its username to databases if the username doesn't exist yet
+             * or just update the token if its username is exist
+             * */
+            Token tokenData = tokenRepository.findByUsername(username);
+            
+            if(tokenData == null) {
+            	tokenRepository.save(new Token(username, token, Instant.now()));
+            }else {
+            	tokenData.setToken(token);
+            	tokenRepository.save(tokenData);
+            }
+            
 
             Map<Object, Object> model = new HashMap<>();
             model.put("username", username);
@@ -106,7 +125,6 @@ public class AuthService extends CrossOriginService{
 
 
             String token = jwtTokenProvider.createToken(username, this.users.findByUsername(username).getRole());
-
             logger.info("Generated Token: "+ token);
 
             Map<Object, Object> model = new HashMap<>();
