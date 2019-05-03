@@ -18,5 +18,4 @@ import lombok.Setter;
 public class Category extends BaseModel{
 	private String categoryName;
 	private String categoryDescription;
-	
 }

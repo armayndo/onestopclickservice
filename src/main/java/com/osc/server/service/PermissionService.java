@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Created by Kerisnarendra on 25/04/2019.
 */
-@CrossOrigin(origins="http://localhost:3000") // added by Tommy 26/04/2019
+
 @RestController
 @RequestMapping("/api/v1/permissions")
 public class PermissionService extends BaseService<Permission> {
