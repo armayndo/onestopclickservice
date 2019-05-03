@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ import com.osc.server.repository.IUserRepository;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -136,5 +138,17 @@ public class AuthService extends CrossOriginService{
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password supplied");
         }
+    }
+    
+    /*
+     * Get all existing login data
+     * **/
+    @GetMapping("/token/list")
+    public ResponseEntity getTokenList()
+    {
+    	List<Token> tokenList = tokenRepository.findAll();
+    	 Map<Object, Object> model = new HashMap<>();
+         model.put("tokens", tokenList);
+		return ok(model);	
     }
 }
