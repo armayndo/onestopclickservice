@@ -6,6 +6,7 @@
 	<groupId>com.folk</groupId>
 	<artifactId>application</artifactId>
 	<version>0.0.1</version>
+	<!--<packaging>war</packaging>-->
 	<packaging>jar</packaging>
 
 	<name>application</name>
@@ -118,6 +119,11 @@
             <version>${json-path}</version>
             <scope>test</scope>
         </dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+			<!--<scope>provided</scope>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>

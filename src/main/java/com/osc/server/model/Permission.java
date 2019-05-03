@@ -35,6 +35,6 @@ public class Permission extends BaseModel{
     @JsonIgnore
     private Set<Role> roles = new HashSet<>();
 
-    public Set<Role> getRoles() {return roles;}
-    public void setRoles(Set<Role> roles) {this.roles = roles;}
+//    public Set<Role> getRoles() {return roles;}
+//    public void setRoles(Set<Role> roles) {this.roles = roles;}
 }

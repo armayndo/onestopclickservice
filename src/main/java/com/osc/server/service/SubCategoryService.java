@@ -10,7 +10,6 @@ import com.osc.server.model.SubCategory;
  * Created by Tommy Toban on 02/05/2019.
  */
 
-@CrossOrigin(origins="http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/subcategory")
 public class SubCategoryService extends BaseService<SubCategory>{

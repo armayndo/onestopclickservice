@@ -29,10 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.http.ResponseEntity.ok;
 
-@CrossOrigin(origins="http://localhost:3000") // added by Tommy 25/04/2019
 @RestController
 @RequestMapping("/auth")
-public class AuthService {
+public class AuthService extends CrossOriginService{
 
    /* @Autowired
     AuthenticationManager authenticationManager;*/
