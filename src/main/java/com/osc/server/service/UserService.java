@@ -228,15 +228,15 @@ public class UserService extends BaseService<User> {
 		try {
 			String username = user.getUsername();
 			if(userRepository.findByUsername(username) == null) {
-				user.setUsername(username);
-				user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-				user.setFirstName(user.getFirstName());
-				user.setLastName(user.getLastName());	
-				user.setEmail(user.getEmail());
-				user.setRole("ROLE_USER");	
-				user.setEnabled(true);
-				userData = userRepository.save(user);
-		        model.put("user", user);
+				userData.setUsername(username);
+				userData.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+				userData.setFirstName(user.getFirstName());
+				userData.setLastName(user.getLastName());	
+				userData.setEmail(user.getEmail());
+				userData.setRole("ROLE_USER");	
+				userData.setEnabled(true);
+				userRepository.save(userData);
+		        model.put("user", userData);
 			}else
 			{
 				model.put("Error", "username is not available, please find the new one");
