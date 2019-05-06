@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Created by Kerisnarendra on 15/04/2019.
 */
-@CrossOrigin(origins= {"http://localhost:3000", "http://localhost:63342" }) // added by Tommy 25/04/2019
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserService extends BaseService<User> {
@@ -50,7 +50,7 @@ public class UserService extends BaseService<User> {
 	*/
 	/*This service use to register new user using form-data format from frontend WEB UI*/
 	@RequestMapping(value="/register", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<Map> signin(HttpServletRequest request) {
+	public ResponseEntity<?> register(HttpServletRequest request) {
 
 		Map<Object, Object> model = new HashMap<>();
 		User user = new User();
@@ -74,7 +74,7 @@ public class UserService extends BaseService<User> {
 				                
 	    } catch (Exception e) {
 	    	model.put("Error", e.getMessage());
-	    	return new ResponseEntity(HttpStatus.BAD_REQUEST);
+	    	return new ResponseEntity("Error",HttpStatus.BAD_REQUEST);
 	    }
 		 
 		return ok(model);
@@ -85,7 +85,7 @@ public class UserService extends BaseService<User> {
 	*/
 	/*This service use to update user data from frontend WEB UI*/
 	@RequestMapping(value="/user/edit", method=RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map> UpdateUser(@RequestBody User user) {
+	public @ResponseBody ResponseEntity<?> UpdateUser(@RequestBody User user) {
 
 		Map<Object, Object> model = new HashMap<>();
 		logger.info("Id from Client: "+user.getId());
@@ -217,5 +217,38 @@ public class UserService extends BaseService<User> {
 		 
 		 return role;
 	 }
+	
+	/*This service use to register new user using json data format from frontend WEB UI*/
+	@PostMapping("/user/register")
+	public ResponseEntity<?> registerUser(@RequestBody User user) {
+
+		Map<Object, Object> model = new HashMap<>();
+		User userData = new User();
+				 
+		try {
+			String username = user.getUsername();
+			if(userRepository.findByUsername(username) == null) {
+				userData.setUsername(username);
+				userData.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+				userData.setFirstName(user.getFirstName());
+				userData.setLastName(user.getLastName());	
+				userData.setEmail(user.getEmail());
+				userData.setRole("ROLE_USER");	
+				userData.setEnabled(true);
+				userRepository.save(userData);
+		        model.put("user", userData);
+			}else
+			{
+				model.put("Error", "username is not available, please find the new one");
+				return new ResponseEntity("Error", HttpStatus.CONFLICT);
+			}
+				                
+	    } catch (Exception e) {
+	    	model.put("Error", e.getMessage());
+	    	return new ResponseEntity("Error", HttpStatus.BAD_REQUEST);
+	    }
+		 
+		return ok(model);
+	}
 }
 

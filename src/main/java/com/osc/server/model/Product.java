@@ -33,6 +33,7 @@ public class Product extends BaseModel{
 	private String description;
 	private BigDecimal price;
 	private String imageUrl;
+
 	
 	@ManyToMany(
 			fetch = FetchType.LAZY,
@@ -50,4 +51,5 @@ public class Product extends BaseModel{
 	
 	
 	
+
 }

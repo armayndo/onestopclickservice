@@ -6,6 +6,7 @@
 	<groupId>com.folk</groupId>
 	<artifactId>application</artifactId>
 	<version>0.0.1</version>
+	<!--<packaging>war</packaging>-->
 	<packaging>jar</packaging>
 
 	<name>application</name>
@@ -76,11 +77,7 @@
 		    <artifactId>commons-io</artifactId>
 		    <version>${commons-io.version}</version>
 		</dependency>
-		<dependency>
-		    <groupId>com.google.collections</groupId>
-		    <artifactId>google-collections</artifactId>
-		    <version>${google-collections.version}</version>
-		</dependency>
+		
 		<dependency>
 			 <groupId>com.jayway.jsonpath</groupId>
 			 <artifactId>json-path</artifactId>
@@ -118,6 +115,27 @@
             <version>${json-path}</version>
             <scope>test</scope>
         </dependency>
+       	<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger2</artifactId>
+		    <version>2.6.1</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger-ui</artifactId>
+		    <version>2.6.1</version>
+		    <scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+			<!--<scope>provided</scope>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>

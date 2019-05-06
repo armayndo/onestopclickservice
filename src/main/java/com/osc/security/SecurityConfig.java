@@ -110,9 +110,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	        .cors().and()
 	        .authorizeRequests()
 	        .antMatchers("/auth/signin").permitAll()
-	        //.antMatchers(HttpMethod.GET, "/**").permitAll()
-	      //  .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-	        //.antMatchers(HttpMethod.GET, "/v1/**").permitAll()
+
+	        .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()  
+	        .antMatchers("/auth/login").permitAll() //for hal browser login
+	        .antMatchers(HttpMethod.GET, "/browser/**").permitAll()
+	        .antMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+	        .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+
 	        .anyRequest().authenticated()
 	        .and()
 	        .apply(new JwtConfigurer(jwtTokenProvider));
