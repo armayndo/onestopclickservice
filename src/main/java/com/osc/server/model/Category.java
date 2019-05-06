@@ -44,6 +44,11 @@ public class Category extends BaseModel{
 //	private Set<Product> products = new HashSet<>();
 	
 	
+	@OneToMany(fetch = FetchType.LAZY,mappedBy="category",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	@JsonIgnore
+	private Set<SubCategory> subCategories = new HashSet<>();
+	
+	
 	
 	
 	
