@@ -34,26 +34,16 @@ public class Category extends BaseModel{
 	private String categoryName;
 	private String categoryDescription;
 	
-	@ManyToMany(
-			fetch = FetchType.LAZY,
-			cascade = {CascadeType.MERGE,CascadeType.PERSIST},
-			mappedBy="categories"
-	)
-	@OnDelete(action=OnDeleteAction.CASCADE)
-	@JsonIgnore
-	private Set<Product> products = new HashSet<>();
+//	@ManyToMany(
+//			fetch = FetchType.LAZY,
+//			cascade = {CascadeType.MERGE,CascadeType.PERSIST},
+//			mappedBy="categories"
+//	)
+//	@OnDelete(action=OnDeleteAction.CASCADE)
+//	@JsonIgnore
+//	private Set<Product> products = new HashSet<>();
 	
 	
-	
-	
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="parent_id")
-	private Category parent;
-	
-	@OneToMany(mappedBy="parent", fetch=FetchType.LAZY,
-			cascade=CascadeType.ALL)
-	private Set<Category> children = new HashSet<>();
 	
 	
 	

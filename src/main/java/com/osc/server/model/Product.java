@@ -34,19 +34,33 @@ public class Product extends BaseModel{
 	private BigDecimal price;
 	private String imageUrl;
 
+//	
+//	@ManyToMany(
+//			fetch = FetchType.LAZY,
+//			cascade = {CascadeType.MERGE,CascadeType.PERSIST}
+//	)
+//	@JoinTable(
+//			name="product_category",
+//			joinColumns={@JoinColumn(name="product_id")},
+//			inverseJoinColumns= {@JoinColumn(name="category_id")}
+//    )
+//	@OnDelete(action=OnDeleteAction.CASCADE)
+//	@JsonIgnore
+//	private Set<Category> categories = new HashSet<>();
+	
 	
 	@ManyToMany(
 			fetch = FetchType.LAZY,
 			cascade = {CascadeType.MERGE,CascadeType.PERSIST}
 	)
 	@JoinTable(
-			name="product_category",
+			name="product_subcategory",
 			joinColumns={@JoinColumn(name="product_id")},
-			inverseJoinColumns= {@JoinColumn(name="category_id")}
+			inverseJoinColumns= {@JoinColumn(name="subcategory_id")}
     )
 	@OnDelete(action=OnDeleteAction.CASCADE)
 	@JsonIgnore
-	private Set<Category> categories = new HashSet<>();
+	private Set<SubCategory> subCategories = new HashSet<>();	
 	
 	
 	

@@ -49,77 +49,56 @@ public class CategoryService extends BaseService<Category>{
     public Category update(@PathVariable long id,@RequestBody Category category) {
 		Category categoryUpdate = categoryRepository.findById(id)
 				.orElseThrow(()->new ResourceNotFoundException("Category", id));
-		Long parentId = category.getParent().getId();
-		Category parentCategory;
-		if(parentId > 0) {
-			// find parent 
-			parentCategory = categoryRepository.findById(parentId).orElse(null);
-			if(parentCategory != null) {
-				//parentCategory.getSubCategories().add(category);
-				category.setParent(parentCategory);
-				
-			}
-					
-		}
-		categoryUpdate.setCategoryName(category.getCategoryName());
-		categoryUpdate.setCategoryDescription(category.getCategoryDescription());
-		
-	
-		
-		
-        return categoryRepository.save(categoryUpdate);
-    }
-	
-	@PutMapping("/{id}")
-    public Category updateWithParent(@PathVariable long id,@RequestBody Category category) {
-		Category categoryUpdate = categoryRepository.findById(id)
-				.orElseThrow(()->new ResourceNotFoundException("Category", id));
-		
-	
-		
-		Long parentId = category.getParent().getId();
-		Category parentCategory;
-		if(parentId > 0) {
-			// find parent 
-			parentCategory = categoryRepository.findById(parentId).orElse(null);
-			if(parentCategory != null) {
-				//parentCategory.getSubCategories().add(category);
-				category.setParent(parentCategory);
-				
-			}
-					
-		}
-		categoryUpdate.setCategoryName(category.getCategoryName());
-		categoryUpdate.setCategoryDescription(category.getCategoryDescription());
-		
-	
+//		Long parentId = category.getParent().getId();
+//		Category parentCategory;
+//		if(parentId > 0) {
+//			// find parent 
+//			parentCategory = categoryRepository.findById(parentId).orElse(null);
+//			if(parentCategory != null) {
+//				//parentCategory.getSubCategories().add(category);
+//				category.setParent(parentCategory);
+//				
+//			}
+//					
+//		}
+//		categoryUpdate.setCategoryName(category.getCategoryName());
+//		categoryUpdate.setCategoryDescription(category.getCategoryDescription());
+//		
+//	
 		
 		
         return categoryRepository.save(categoryUpdate);
     }
 	
-	@PutMapping("/{id}/sample")
-	public Category getSampleCategory(@PathVariable long id,@RequestBody Category category) {
-	
-		 return categoryRepository.save(category);
-	}
-	
-	@PostMapping("/{id}/createsample")
-	public Category createSampleCategory(@RequestBody Category category) {
-		
-	
-		 return categoryRepository.save(category);
-	}
-	
-	
-	@PutMapping("/{id}/updatesample")
-	public Category updateSampleCategory(@PathVariable long id,@RequestBody Category category) {
-		 Category categoryFound = categoryRepository.findById(id)
-				 .orElseThrow(()->new ResourceNotFoundException("Category",id));
-		 
-	
-		 return categoryRepository.save(categoryFound);
-	}
+//	@PutMapping("/{id}")
+//    public Category updateWithParent(@PathVariable long id,@RequestBody Category category) {
+//		Category categoryUpdate = categoryRepository.findById(id)
+//				.orElseThrow(()->new ResourceNotFoundException("Category", id));
+//		
+//	
+//		
+//		Long parentId = category.getParent().getId();
+//		Category parentCategory;
+//		if(parentId > 0) {
+//			// find parent 
+//			parentCategory = categoryRepository.findById(parentId).orElse(null);
+//			if(parentCategory != null) {
+//				//parentCategory.getSubCategories().add(category);
+//				category.setParent(parentCategory);
+//				
+//			}
+//					
+//		}
+//		categoryUpdate.setCategoryName(category.getCategoryName());
+//		categoryUpdate.setCategoryDescription(category.getCategoryDescription());
+//		
+//	
+//		
+//		
+//        return categoryRepository.save(categoryUpdate);
+//    }
+//	
+//	
 	
 	
 }
