@@ -1,5 +1,8 @@
 package com.osc.security.jwt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by Syarif Hidayat on 22/04/2019.
  */
@@ -7,17 +10,26 @@ package com.osc.security.jwt;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.stream.Collectors;
 
 public class JwtTokenFilter extends GenericFilterBean {
 
     private JwtTokenProvider jwtTokenProvider;
+    
+    private Logger logger = LoggerFactory.getLogger(JwtTokenFilter.class);
+
 
     public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
@@ -32,10 +44,14 @@ public class JwtTokenFilter extends GenericFilterBean {
             Authentication auth = jwtTokenProvider.getAuthentication(token);
 
             if (auth != null) {
+            	logger.info("Authorized Token: "+token);
+            	logger.info("Authorized Username: "+ this.jwtTokenProvider.getUsername(token));
+                                                   
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
         filterChain.doFilter(req, res);
+        
     }
 
 }

@@ -5,6 +5,9 @@ package com.osc.security.jwt;
  */
 
 import io.jsonwebtoken.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +16,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import com.osc.security.AppUserDetails;
+import com.osc.server.model.Activity;
+import com.osc.server.model.Token;
+import com.osc.server.repository.IActivityRepository;
+import com.osc.server.repository.ITokenRepository;
+
+//import ch.qos.logback.classic.Logger;
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 
@@ -25,10 +38,20 @@ public class JwtTokenProvider {
     private String secretKey;
 
     @Value("${jwt.expiration}")
-    private long validityInMilliseconds; // 1h
+    private long validityInMilliseconds; 
 
     @Autowired
     private UserDetailsService userDetailsService;
+    
+    @Autowired
+	ITokenRepository tokenRepository;
+    
+    @Autowired
+   	IActivityRepository activityRepository;
+    
+    private String url;
+    
+    private Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @PostConstruct
     protected void init() {
@@ -61,8 +84,15 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest req) {
+    
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        	
+        	/*
+        	 * Set URL Activity
+        	 * **/
+        	url = req.getRequestURI();
+        	
             return bearerToken.substring(7, bearerToken.length());
         }
         return null;
@@ -76,10 +106,26 @@ public class JwtTokenProvider {
                 return false;
             }
 
+            /*
+             * get Current login data
+             * **/
+            Token currentUser = tokenRepository.findByUsername(this.getUsername(token));
+            logger.info("Current login username:"+this.getUsername(token));
+            Activity activity = new Activity(url, Instant.now(), currentUser);
+            activityRepository.save(activity);
+            
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidJwtAuthenticationException("Expired or invalid JWT token");
         }
+    }
+    
+    
+    /*
+     * Method to get current user login data
+     * **/
+    public Token getTokenData(String username) { 	
+    	return tokenRepository.findByUsername(username);	
     }
 
 }

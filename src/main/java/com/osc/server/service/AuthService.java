@@ -3,6 +3,7 @@ package com.osc.server.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,22 +14,29 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
+import com.osc.server.model.Activity;
 import com.osc.server.model.Token;
 import com.osc.common.AuthenticationRequest;
 import com.osc.security.jwt.JwtTokenProvider;
+import com.osc.server.repository.IActivityRepository;
 import com.osc.server.repository.ITokenRepository;
 import com.osc.server.repository.IUserRepository;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,6 +51,9 @@ public class AuthService extends CrossOriginService{
 
 	@Autowired
 	ITokenRepository tokenRepository;
+	
+	@Autowired
+	IActivityRepository activityRepository;
 	
     @Autowired
     AuthenticationProvider authenticationProvider;
@@ -91,6 +102,7 @@ public class AuthService extends CrossOriginService{
             	tokenRepository.save(new Token(username, token, Instant.now()));
             }else {
             	tokenData.setToken(token);
+            	tokenData.setTime(Instant.now());
             	tokenRepository.save(tokenData);
             }
             
@@ -146,9 +158,44 @@ public class AuthService extends CrossOriginService{
     @GetMapping("/token/list")
     public ResponseEntity getTokenList()
     {
-    	List<Token> tokenList = tokenRepository.findAll();
-    	 Map<Object, Object> model = new HashMap<>();
-         model.put("tokens", tokenList);
+    	Map<Object, Object> model = new HashMap<>();
+    	try {
+    		List<Token> tokenList = tokenRepository.findAll();
+    		
+    		for(Token token : tokenList) {
+    			logger.info("Username: "+ token.getUsername()+ " Token:"+token.getToken());
+    		}
+    		
+    		
+       	 	
+            model.put("tokens", tokenList);
+    	}catch(Exception e) {
+    		logger.info(e.getMessage());
+    		return new ResponseEntity("Error", HttpStatus.NOT_FOUND);
+    	}
+    	
 		return ok(model);	
+    }
+    
+    @GetMapping("/activity/list/{id}")
+    public ResponseEntity getActivityListById(@PathVariable("id") int id) {
+		
+    	Map<Object, Object> map = new HashMap<>();
+    	
+    	try {
+    		Token token = tokenRepository.findById(Long.valueOf(id)).get();
+    		
+    		if(token != null) {
+    			List<Activity> activityList = token.getActivity();
+        		map.put("activities", activityList);
+    		}else {
+    			map.put("Error", "Data is not found");
+    		}
+    		
+    	}catch(BadRequest e) {
+    		return new ResponseEntity("Error", HttpStatus.BAD_REQUEST);
+    	}
+    	
+    	return ok(map);
     }
 }

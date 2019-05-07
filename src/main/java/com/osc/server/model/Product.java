@@ -55,7 +55,19 @@ public class Product extends BaseModel{
     )
 	@OnDelete(action=OnDeleteAction.CASCADE)
 	@JsonIgnore
-	private Set<SubCategory> subCategories = new HashSet<>();
+	private Set<SubCategory> subCategories = new HashSet<>();	
+	
+	
+	@ManyToMany(
+			fetch=FetchType.LAZY,
+			mappedBy="products")
+	@JsonIgnore
+	private Set<PromotedProduct> promotedProducts;
+	
+	
+	
+	
+
 
 	@OneToMany(mappedBy = "product")
 	@OnDelete(action = OnDeleteAction.CASCADE)
