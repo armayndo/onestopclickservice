@@ -61,4 +61,9 @@ public class Product extends BaseModel{
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	private Set<ProductDetail> productDetails;
+
+	@OneToMany(mappedBy = "product")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	private Set<ProductReview> productReviews;
 }
