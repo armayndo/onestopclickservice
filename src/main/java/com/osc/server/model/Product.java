@@ -4,12 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -60,10 +55,10 @@ public class Product extends BaseModel{
     )
 	@OnDelete(action=OnDeleteAction.CASCADE)
 	@JsonIgnore
-	private Set<SubCategory> subCategories = new HashSet<>();	
-	
-	
-	
-	
+	private Set<SubCategory> subCategories = new HashSet<>();
 
+	@OneToMany(mappedBy = "product")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	private Set<ProductDetail> productDetails;
 }
