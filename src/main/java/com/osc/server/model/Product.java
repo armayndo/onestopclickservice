@@ -63,6 +63,13 @@ public class Product extends BaseModel{
 	private Set<SubCategory> subCategories = new HashSet<>();	
 	
 	
+	@ManyToMany(
+			fetch=FetchType.LAZY,
+			mappedBy="products")
+	@JsonIgnore
+	private Set<PromotedProduct> promotedProducts;
+	
+	
 	
 	
 
