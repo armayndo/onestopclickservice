@@ -18,9 +18,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.osc.security.jwt.JwtConfigurer;
+import com.osc.security.jwt.JwtTokenFilter;
 import com.osc.security.jwt.JwtTokenProvider;
+import com.osc.security.oauth2.CustomOAuth2UserService;
+import com.osc.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.osc.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.osc.security.oauth2.OAuth2AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -28,45 +34,33 @@ import com.osc.security.jwt.JwtTokenProvider;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-	
-	/*@Autowired
-	private UserDetailsService userDetailsService;
-	
-	@Autowired
-	PasswordEncoder passwordEncoder;
-	
-	@Bean
-	public AuthenticationProvider authenticationProvider() {
 		
-		logger.info("DaoAuthentication process.....");
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userDetailsService);
-		provider.setPasswordEncoder(passwordEncoder);
-		
-		return provider;
-	}
-	
-	@Bean
-    public PasswordEncoder passwordEncoder() {
-		logger.info("set BCrypt Password Encoder.....");
-        return new BCryptPasswordEncoder();
-    }
-	
-	@Bean
-	public UserDetailsService userDetailsService() {
-		logger.info("set EmployeeUserDetailsService.....");
-	    return new AppUserDetailsService();
-	}*/
-	
-	/*private UserDetailsService userDetailsService;*/
-	
 	@Autowired
 	JwtTokenProvider jwtTokenProvider;
-	 
-	
-		
+	 		
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	
+	/*@Autowired
+	JwtTokenFilter customFilter;*/
+	
+
+	@Autowired
+	private CustomOAuth2UserService customOAuth2UserService;
+
+	@Autowired
+	private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+	@Autowired
+	private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
+	@Autowired
+	private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+ 
+	@Bean
+	public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+		return new HttpCookieOAuth2AuthorizationRequestRepository();
+	}
 		
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
@@ -83,6 +77,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public PasswordEncoder passwordEncoder() {
 		logger.info("set BCrypt Password Encoder.....");
 	    return new BCryptPasswordEncoder();
+	}
+	
+	@Bean
+	public JwtTokenFilter customFilter() {
+		logger.info("set JwtTokenFilter.....");
+	    return new JwtTokenFilter(jwtTokenProvider);
 	}
 		
 	/*@Bean
@@ -119,7 +119,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	        .anyRequest().authenticated()
 	        .and()
-	        .apply(new JwtConfigurer(jwtTokenProvider));
+	        //.apply(new JwtConfigurer(jwtTokenProvider));
+	        .oauth2Login()
+            .authorizationEndpoint()
+                .baseUri("/oauth2/authorize")
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                .and()
+            .redirectionEndpoint()
+                .baseUri("/oauth2/callback/*")
+                .and()
+            .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+                .and()
+            .successHandler(oAuth2AuthenticationSuccessHandler)
+            .failureHandler(oAuth2AuthenticationFailureHandler);
+	     	     
+	        http.addFilterBefore(customFilter(), UsernamePasswordAuthenticationFilter.class);
 	 }
 	 
 }

@@ -1,5 +1,7 @@
 package com.osc.server.repository;
 
+import java.util.Optional;
+
 import com.osc.server.model.User;
 
 /**
@@ -14,4 +16,5 @@ import com.osc.server.model.User;
 
 public interface IUserRepository extends IBaseRepository<User, Long>{
 	User findByUsername(String username);
+	Optional<User> findByEmail(String email);
 }
