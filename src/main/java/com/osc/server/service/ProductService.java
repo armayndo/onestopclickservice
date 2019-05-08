@@ -149,6 +149,21 @@ public class ProductService extends BaseService<Product> {
         return productDetailRepository.save(productDetail);
     }
 
+	// Product Details
+	@DeleteMapping("/{productId}/details/{productDetailId}")
+	public void removeDetails(@PathVariable Long productId, @PathVariable Long productDetailId){
+		// Finds product by id and returns it's recorded details, otherwise throws exception
+		Product product = this.productRepository.findById(productId).orElseThrow(
+				() -> new ResourceNotFoundException("Product", productId)
+		);
+
+		ProductDetail productDetail = this.productDetailRepository.findById(productDetailId).orElseThrow(
+				() -> new ResourceNotFoundException("Product Detail", productDetailId)
+		);
+
+		productDetailRepository.delete(productDetail);
+	}
+
 	// Product Reviews
 	@GetMapping("/{productId}/reviews")
 	public Set<ProductReview> getReviews(@PathVariable Long productId){
@@ -160,8 +175,8 @@ public class ProductService extends BaseService<Product> {
 
 	// Product Reviews
 	@PostMapping("/{productId}/reviews")
-	public ProductReview addReviews(@PathVariable Long productId, @RequestParam("productReviewComment") String productReviewComment, @RequestParam("productReviewRate") int productReviewRate, @RequestParam("userId") long userId){
-		if (productReviewRate > Common.MAX_PRODUCT_RATE || productReviewRate < Common.MIN_PRODUCT_RATE) {
+	public ProductReview addReviews(@PathVariable Long productId, @RequestBody ProductReview productReview){
+		if (productReview.getProductReviewRate() > Common.MAX_PRODUCT_RATE || productReview.getProductReviewRate() < Common.MIN_PRODUCT_RATE) {
 			throw new RequestValidationException("Product review rate must be between " + Common.MIN_PRODUCT_RATE + " and " + Common.MAX_PRODUCT_RATE);
 		}
 
@@ -171,16 +186,53 @@ public class ProductService extends BaseService<Product> {
 		);
 
 		// Finds user by id and returns it's recorded reviews, otherwise throws exception
-		User user = this.userRepository.findById(userId).orElseThrow(
-				() -> new ResourceNotFoundException("User", userId)
+		User user = this.userRepository.findById(productReview.getUser().getId()).orElseThrow(
+				() -> new ResourceNotFoundException("User", productReview.getUser().getId())
 		);
 
-		ProductReview productReview = new ProductReview();
-		productReview.setProduct(product);
-		productReview.setUser(user);
-		productReview.setProductReviewComment(productReviewComment);
-		productReview.setProductReviewRate(productReviewRate);
+		ProductReview review = new ProductReview();
+		review.setProduct(product);
+		review.setUser(user);
+		review.setProductReviewComment(productReview.getProductReviewComment());
+		review.setProductReviewRate(productReview.getProductReviewRate());
 
-		return productReviewRepository.save(productReview);
+		return productReviewRepository.save(review);
+	}
+
+	// Product Reviews
+	@PutMapping("/{productId}/reviews/{productReviewId}")
+	public void updateReviews(@PathVariable Long productId, @PathVariable Long productReviewId, @RequestBody ProductReview productReview){
+		// Finds product by id and returns it's recorded reviews, otherwise throws exception
+		Product product = this.productRepository.findById(productId).orElseThrow(
+				() -> new ResourceNotFoundException("Product", productId)
+		);
+
+		ProductReview review = this.productReviewRepository.findById(productReviewId).orElseThrow(
+				() -> new ResourceNotFoundException("Product Review", productReviewId)
+		);
+
+		if (productReview.getProductReviewRate() > Common.MAX_PRODUCT_RATE || productReview.getProductReviewRate() < Common.MIN_PRODUCT_RATE) {
+			throw new RequestValidationException("Product review rate must be between " + Common.MIN_PRODUCT_RATE + " and " + Common.MAX_PRODUCT_RATE);
+		}
+
+		review.setProductReviewComment(productReview.getProductReviewComment());
+		review.setProductReviewRate(productReview.getProductReviewRate());
+
+		productReviewRepository.save(review);
+	}
+
+	// Product Reviews
+	@DeleteMapping("/{productId}/reviews/{productReviewId}")
+	public void removeReviews(@PathVariable Long productId, @PathVariable Long productReviewId){
+		// Finds product by id and returns it's recorded reviews, otherwise throws exception
+		Product product = this.productRepository.findById(productId).orElseThrow(
+				() -> new ResourceNotFoundException("Product", productId)
+		);
+
+		ProductReview productReview = this.productReviewRepository.findById(productReviewId).orElseThrow(
+				() -> new ResourceNotFoundException("Product Review", productReviewId)
+		);
+
+		productReviewRepository.delete(productReview);
 	}
 }
