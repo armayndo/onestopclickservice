@@ -115,7 +115,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	        .antMatchers("/auth/login").permitAll() //for hal browser login
 	        .antMatchers(HttpMethod.GET, "/browser/**").permitAll()
 	        .antMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-	        .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+//	        .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
 	        .anyRequest().authenticated()
 	        .and()

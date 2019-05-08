@@ -63,5 +63,8 @@ public class User extends BaseModel {
 
 //	public Set<Role> getRoles() {return roles;}
 //	public void setRoles(Set<Role> roles) {this.roles = roles;}
-    
+	@OneToMany(mappedBy = "user")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	private Set<ProductReview> productReviews;
 }
