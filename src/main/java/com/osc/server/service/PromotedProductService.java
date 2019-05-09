@@ -55,6 +55,8 @@ public class PromotedProductService extends BaseService<PromotedProduct>{
 		return promotedProductRepository.save(promotedProduct);
 	}
 	
+	
+	
 	@DeleteMapping("/{id}/remove-product")
 	public PromotedProduct removeMultiProduct(@PathVariable Long id,@RequestBody PromotedProduct promotedProduct) {
 		PromotedProduct findPromotedProduct = promotedProductRepository.findById(id).orElseThrow(
@@ -72,4 +74,6 @@ public class PromotedProductService extends BaseService<PromotedProduct>{
 
 		return promotedProductRepository.save(findPromotedProduct);
 	}
+	
+
 }
