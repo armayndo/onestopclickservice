@@ -49,7 +49,7 @@ public class UserService extends BaseService<User> {
 	/**
 	 * Created by Syarif Hidayat on 24/04/2019.
 	*/
-	/*This service use to register new user using form-data format from frontend WEB UI*/
+	/*This service use to register new user for Administrator using form-data format from frontend WEB UI*/
 	@RequestMapping(value="/register", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> register(HttpServletRequest request) {
 
@@ -257,6 +257,48 @@ public class UserService extends BaseService<User> {
 	    } catch (Exception e) {
 	    	model.put("Error", e.getMessage());
 	    	return new ResponseEntity("Error", HttpStatus.BAD_REQUEST);
+	    }
+		 
+		return ok(model);
+	}
+	
+	/*This service use to register new user for new incoming user using form-data format from frontend WEB UI*/
+	@RequestMapping(value="/user/register", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<?> registerNewuser(HttpServletRequest request) {
+
+		Map<Object, Object> model = new HashMap<>();
+		User user = new User();
+				 
+		try {
+			String username = request.getParameter("username");
+			if(userRepository.findByUsername(username) == null) {
+				user.setUsername(username);
+				user.setPassword(new BCryptPasswordEncoder().encode(request.getParameter("password")));
+				user.setFirstName(request.getParameter("firstname"));
+				user.setLastName(request.getParameter("lastname"));	
+				user.setEmail(request.getParameter("email"));
+				user.setRole("ROLE_USER");	
+				user.setEnabled(true);
+				
+				String[] buffer = username.split("@");
+				
+				if(buffer.length == 1) {
+					user.setProvider(AuthProvider.local);
+					user.setProviderId("1");
+				}else {
+					user.setProvider(AuthProvider.valueOf(buffer[1]));				
+				}
+				
+				userRepository.save(user);
+		        model.put("user", user);
+			}else
+			{
+				model.put("Error", "username is not available, please find the new one");
+			}
+				                
+	    } catch (Exception e) {
+	    	model.put("Error", e.getMessage());
+	    	return new ResponseEntity("Error",HttpStatus.BAD_REQUEST);
 	    }
 		 
 		return ok(model);
