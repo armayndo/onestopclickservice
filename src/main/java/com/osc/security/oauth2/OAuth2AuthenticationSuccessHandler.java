@@ -19,7 +19,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Optional;
 
 import static com.osc.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
@@ -65,6 +68,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     	
     	Optional<String> redirectUri = CookieUtils.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue);
+    	
+    	logger.info("RedirectUri: "+redirectUri.get());
 
         if(redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
             throw new BadRequestException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
@@ -76,11 +81,30 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         logger.info("Create Token..");
         logger.info("Username:" + authentication.getName());
         String token = tokenProvider.createToken(authentication.getName(), "ROLE_USER");
-        logger.info("TOKEN: "+token);
+        logger.info("Sent TOKEN to Frontend: "+targetUrl+" with token "+token);
         
-        return UriComponentsBuilder.fromUriString(targetUrl)
+        URL url;
+        URI uri;
+		try {
+			url = new URL("http://localhost:3000/#/oauth2/redirect");
+			uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+			targetUrl = uri.toASCIIString();
+			logger.info("URL REDIRECT: "+ targetUrl);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+        
+		logger.info("URL CHECK: "+ UriComponentsBuilder.fromUriString(targetUrl).encode()
                 .queryParam("token", token)
-                .build().toUriString();
+                .build().toUriString());
+		
+        /*return UriComponentsBuilder.fromUriString(targetUrl).encode()
+                .queryParam("token", token)
+                .build().toUriString();*/
+		
+		return "http://localhost:3000/#/oauth2/redirect?token="+token;
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
@@ -94,6 +118,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     	 logger.info("isAuthorizedRedirectUri");
     	
     	URI clientRedirectUri = URI.create(uri);
+    	
+    	logger.info("Redirect Uri from client: "+clientRedirectUri.getHost());
+    	logger.info("Redirect Uri from properties: "+appProperties.getOauth2().getAuthorizedRedirectUris().get(0));
 
         return appProperties.getOauth2().getAuthorizedRedirectUris()
                 .stream()
