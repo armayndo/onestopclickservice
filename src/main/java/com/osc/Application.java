@@ -2,6 +2,7 @@ package com.osc;
 
 import java.util.Optional;
 
+import com.osc.config.AppProperties;
 import com.osc.property.FileStorageProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,7 +19,8 @@ import com.osc.security.AppUserDetails;
 
 @SpringBootApplication
 @EnableConfigurationProperties({
-		FileStorageProperties.class
+		FileStorageProperties.class,
+		AppProperties.class
 })
 public class Application {
 	public static void main(String[] args) {

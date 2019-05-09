@@ -1,6 +1,7 @@
 package com.osc.server.service;
 
 import com.osc.exception.ResourceNotFoundException;
+import com.osc.server.model.AuthProvider;
 import com.osc.server.model.Role;
 import com.osc.server.model.User;
 import com.osc.server.repository.IRoleRepository;
@@ -65,6 +66,16 @@ public class UserService extends BaseService<User> {
 				user.setEmail(request.getParameter("email"));
 				user.setRole("ROLE_USER");	
 				user.setEnabled(true);
+				
+				String[] buffer = username.split("@");
+				
+				if(buffer.length == 1) {
+					user.setProvider(AuthProvider.local);
+					user.setProviderId("1");
+				}else {
+					user.setProvider(AuthProvider.valueOf(buffer[1]));				
+				}
+				
 				userRepository.save(user);
 		        model.put("user", user);
 			}else

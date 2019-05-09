@@ -3,14 +3,19 @@ package com.osc.server.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +27,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
+import com.osc.server.exception.ResourceNotFoundException;
 import com.osc.server.model.Activity;
 import com.osc.server.model.Token;
+import com.osc.server.model.User;
+import com.osc.server.payload.AuthResponse;
+import com.osc.server.payload.LoginRequest;
 import com.osc.common.AuthenticationRequest;
+import com.osc.security.CurrentUser;
+import com.osc.security.UserPrincipal;
 import com.osc.security.jwt.JwtTokenProvider;
 import com.osc.server.repository.IActivityRepository;
 import com.osc.server.repository.ITokenRepository;
@@ -39,6 +50,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -118,7 +130,7 @@ public class AuthService extends CrossOriginService{
         }
     }
     
-    @RequestMapping(value="/login", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @RequestMapping(value="/logins", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity login(HttpServletRequest request) {
 
         try {
@@ -197,5 +209,59 @@ public class AuthService extends CrossOriginService{
     	}
     	
     	return ok(map);
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+               
+        try {
+            String username = loginRequest.getEmail();
+            logger.info("Username from client: "+ username);
+            logger.info("Pasword from client: "+ loginRequest.getPassword());
+            
+
+            try {
+                authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, loginRequest.getPassword()));
+            } catch (DisabledException e) {
+                throw new DisabledException("User is disabled!", e);
+            } catch (BadCredentialsException e) {
+                throw new BadCredentialsException("Bad credentials!", e);
+            }catch (Exception e) {
+                logger.info("Signin Failed"+ e.getMessage());
+            }
+
+
+            String token = jwtTokenProvider.createToken(username, this.users.findByUsername(username).getRole());
+            logger.info("Generated Token: "+ token);
+
+            Map<Object, Object> model = new HashMap<>();
+            model.put("username", username);
+            model.put("token", token);
+            return ResponseEntity.ok(new AuthResponse(token));
+            //return ok(model);
+
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Invalid username/password supplied");
+        }
+    }
+    
+    @GetMapping("/user/me")
+    public User getCurrentUser() {
+    	
+    	String username;
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		if (principal instanceof UserDetails) {
+			username = ((UserDetails)principal).getUsername();
+		} else {
+			username = principal.toString();
+		}
+		
+    	User user = users.findByUsername(username);
+    	logger.info("User ID: "+user.getId());
+    	logger.info("Username: "+user.getUsername());
+    	logger.info("Email: "+user.getEmail());
+    	
+    	return user;
     }
 }

@@ -8,6 +8,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +32,16 @@ public class User extends BaseModel {
     private String lastName;
     private String email;
     private String password;
+    private String imageUrl;
+    
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
+    
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
+
+    private String providerId;
 
 	/*Added by Syarif to accomodate Spring Security*/
 	private String username;
