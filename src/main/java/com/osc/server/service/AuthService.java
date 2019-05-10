@@ -56,7 +56,7 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthService extends CrossOriginService{
+public class AuthService {
 
    /* @Autowired
     AuthenticationManager authenticationManager;*/

@@ -1,11 +1,13 @@
 package com.osc.server.service;
 
 import com.osc.exception.ResourceNotFoundException;
+import com.osc.security.jwt.JwtTokenProvider;
 import com.osc.server.model.AuthProvider;
 import com.osc.server.model.Role;
 import com.osc.server.model.User;
 import com.osc.server.repository.IRoleRepository;
 import com.osc.server.repository.IUserRepository;
+import com.osc.server.util.EmailUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,6 +17,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,9 @@ public class UserService extends BaseService<User> {
 
 	@Autowired
 	private IRoleRepository roleRepository;
+	
+	@Autowired
+	JwtTokenProvider jwtTokenProvider;
 
 	private Logger logger = LoggerFactory.getLogger(UserService.class);
 	
@@ -306,5 +312,40 @@ public class UserService extends BaseService<User> {
 		 
 		return ok(model);
 	}
+	
+	@RequestMapping(value="/user/resetpassword", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<?> resetPassword(HttpServletRequest request) {
+		
+		String email = request.getParameter("email");
+		Optional<User> userOptional = userRepository.findByEmail(email);
+		User user;
+		String token;
+		
+		log.info("Send Email");
+		log.info("Email: "+email);
+		
+		
+		if(!userOptional.isPresent()) {
+			return new ResponseEntity<Object>("User Not Found",HttpStatus.OK);	
+		}
+		
+		user = userOptional.get();
+		token = jwtTokenProvider.createToken(user.getUsername(), user.getRole());
+		log.info("Token: "+token);
+		EmailUtil emailUtil = new EmailUtil();
+		
+		try {
+			if(!emailUtil.sendEmail(email, token)) {
+				return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+			return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);	
+		}
+		
+		
+		return new ResponseEntity<Object>("Success",HttpStatus.OK);	
+	}
+	
 }
 
