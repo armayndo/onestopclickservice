@@ -5,6 +5,7 @@ import com.osc.security.jwt.JwtTokenProvider;
 import com.osc.server.model.AuthProvider;
 import com.osc.server.model.Role;
 import com.osc.server.model.User;
+import com.osc.server.payload.ApiResponse;
 import com.osc.server.repository.IRoleRepository;
 import com.osc.server.repository.IUserRepository;
 import com.osc.server.util.EmailUtil;
@@ -314,7 +315,7 @@ public class UserService extends BaseService<User> {
 	}
 	
 	@RequestMapping(value="/user/resetpassword", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> resetPassword(HttpServletRequest request) {
+	public ApiResponse resetPassword(HttpServletRequest request) {
 		
 		String email = request.getParameter("email");
 		Optional<User> userOptional = userRepository.findByEmail(email);
@@ -326,7 +327,7 @@ public class UserService extends BaseService<User> {
 		
 		
 		if(!userOptional.isPresent()) {
-			return new ResponseEntity<Object>("User Not Found",HttpStatus.OK);	
+			return new ApiResponse(false,"User not found");	
 		}
 		
 		user = userOptional.get();
@@ -336,15 +337,17 @@ public class UserService extends BaseService<User> {
 		
 		try {
 			if(!emailUtil.sendEmail(email, token)) {
-				return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);
+				//return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);
+				return new ApiResponse(false,"Sending Email from system was failed");	
 			}
 		}catch(Exception e) {
 			log.error(e.getMessage(), e);
-			return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);	
+			//return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);	
+			return new ApiResponse(false,"Internal Server Error");
 		}
 		
-		
-		return new ResponseEntity<Object>("Success",HttpStatus.OK);	
+		return new ApiResponse(true,"Reset password is being processed, check your email!");
+		//return new ResponseEntity<Object>("Success",HttpStatus.OK);	
 	}
 	
 }

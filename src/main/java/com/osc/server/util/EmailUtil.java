@@ -103,11 +103,11 @@ public class EmailUtil {
 			
 			Message message = new MimeMessage(session);
 			/*message.setFrom(new InternetAddress(emailProperties.getEmail(), false));*/
-			message.setFrom(new InternetAddress("arkhyterima02@gmail.com", false));
+			message.setFrom(new InternetAddress("admin@onestopclick.com", false));
 
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
-			message.setSubject("Your password reset request");
-			message.setContent("Your password reset request", "text/html");
+			message.setSubject("[OneStopClick-Admin] Your password reset request");
+			message.setContent("[OneStopClick-Admin] Your password reset request", "text/html");
 			message.setSentDate(new Date());
 
 			MimeBodyPart messageBodyPart = new MimeBodyPart();
