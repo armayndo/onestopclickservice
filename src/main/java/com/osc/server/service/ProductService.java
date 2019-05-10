@@ -236,5 +236,13 @@ public class ProductService extends BaseService<Product> {
 		productReviewRepository.delete(productReview);
 	}
 	
+	@GetMapping("/{productId}/reviews/{productReviewId}")
+	public ProductReview detailReviews(@PathVariable Long productId, @PathVariable Long productReviewId){
+	
+		ProductReview productReview = productReviewRepository.findById(productReviewId).orElseThrow(()->new ResourceNotFoundException("Product Review",productReviewId));
+		
+		return productReview;
+	}
+	
 
 }
