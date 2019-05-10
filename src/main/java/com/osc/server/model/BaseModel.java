@@ -1,5 +1,6 @@
 package com.osc.server.model;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @MappedSuperclass
 @Getter
 @Setter
+@Data
 public class BaseModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

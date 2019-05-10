@@ -91,9 +91,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 			targetUrl = uri.toASCIIString();
 			logger.info("URL REDIRECT: "+ targetUrl);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
         
 		logger.info("URL CHECK: "+ UriComponentsBuilder.fromUriString(targetUrl).encode()
