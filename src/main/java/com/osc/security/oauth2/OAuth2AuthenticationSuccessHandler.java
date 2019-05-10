@@ -83,7 +83,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String token = tokenProvider.createToken(authentication.getName(), "ROLE_USER");
         logger.info("Sent TOKEN to Frontend: "+targetUrl+" with token "+token);
         
-        URL url;
+        /*URL url;
         URI uri;
 		try {
 			url = new URL("http://localhost:3000/#/oauth2/redirect");
@@ -91,20 +91,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 			targetUrl = uri.toASCIIString();
 			logger.info("URL REDIRECT: "+ targetUrl);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+			logger.error(e.getMessage(), e);
+		}*/
         
 		logger.info("URL CHECK: "+ UriComponentsBuilder.fromUriString(targetUrl).encode()
                 .queryParam("token", token)
                 .build().toUriString());
 		
-        /*return UriComponentsBuilder.fromUriString(targetUrl).encode()
+        return UriComponentsBuilder.fromUriString(targetUrl).encode()
                 .queryParam("token", token)
-                .build().toUriString();*/
+                .build().toUriString();
 		
-		return "http://localhost:3000/#/oauth2/redirect?token="+token;
+		/*return "http://localhost:3000/#/oauth2/redirect?token="+token;*/
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {

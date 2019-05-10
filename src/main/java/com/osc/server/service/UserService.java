@@ -7,6 +7,7 @@ import com.osc.server.model.User;
 import com.osc.server.repository.IRoleRepository;
 import com.osc.server.repository.IUserRepository;
 
+import lombok.extern.slf4j.Slf4j;
 
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.badRequest;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Slf4j
 public class UserService extends BaseService<User> {
 	
 	@Autowired
@@ -53,6 +55,7 @@ public class UserService extends BaseService<User> {
 	@RequestMapping(value="/register", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> register(HttpServletRequest request) {
 
+		log.info("");
 		Map<Object, Object> model = new HashMap<>();
 		User user = new User();
 				 
