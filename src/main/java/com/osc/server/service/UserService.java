@@ -1,11 +1,14 @@
 package com.osc.server.service;
 
 import com.osc.exception.ResourceNotFoundException;
+import com.osc.security.jwt.JwtTokenProvider;
 import com.osc.server.model.AuthProvider;
 import com.osc.server.model.Role;
 import com.osc.server.model.User;
+import com.osc.server.payload.ApiResponse;
 import com.osc.server.repository.IRoleRepository;
 import com.osc.server.repository.IUserRepository;
+import com.osc.server.util.EmailUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,6 +18,7 @@ import static org.springframework.http.ResponseEntity.badRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -45,6 +50,9 @@ public class UserService extends BaseService<User> {
 
 	@Autowired
 	private IRoleRepository roleRepository;
+	
+	@Autowired
+	JwtTokenProvider jwtTokenProvider;
 
 	private Logger logger = LoggerFactory.getLogger(UserService.class);
 	
@@ -306,5 +314,71 @@ public class UserService extends BaseService<User> {
 		 
 		return ok(model);
 	}
+	
+	@RequestMapping(value="/user/resetpassword", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ApiResponse sendEmailResetRequest(HttpServletRequest request) {
+		
+		String email = request.getParameter("email");
+		Optional<User> userOptional = userRepository.findByEmail(email);
+		User user;
+		String token;
+		
+		log.info("Send Email");
+		log.info("Email: "+email);
+		
+		
+		if(!userOptional.isPresent()) {
+			return new ApiResponse(false,"User not found");	
+		}
+		
+		user = userOptional.get();
+		String username = user.getUsername();
+		token = jwtTokenProvider.createToken(username, user.getRole());
+		log.info("Token: "+token);
+		EmailUtil emailUtil = new EmailUtil();
+		
+		try {
+			if(!emailUtil.sendEmail(email, token, username)) {
+				//return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);
+				return new ApiResponse(false,"Sending Email from system was failed");	
+			}
+		}catch(Exception e) {
+			log.error(e.getMessage(), e);
+			//return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);	
+			return new ApiResponse(false,"Internal Server Error");
+		}
+		
+		return new ApiResponse(true,"Reset password is being processed, check your email!");
+		//return new ResponseEntity<Object>("Success",HttpStatus.OK);	
+	}
+	
+	@RequestMapping(value = "/reset", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ApiResponse resetPassword(HttpServletRequest request) {
+		
+		User userResponse = null;
+		
+		try {
+			String username = request.getParameter("username");
+			logger.info("username: "+ username);
+			String password = request.getParameter("password");
+			logger.info("password: "+ password);
+			User user = userRepository.findByUsername(username);
+			
+			if(user != null) {
+				user.setPassword(new BCryptPasswordEncoder().encode(password));
+				logger.info("Password updated..");
+				userResponse = userRepository.save(user);
+			}
+			
+			
+		}catch(Exception e) {
+			logger.error("Error:"+e.getMessage(), e);
+			return new ApiResponse(false, e.getMessage());
+		}
+		
+		
+		return new ApiResponse(true, "Your password has been reset successfully", userResponse);
+	}
+	
 }
 
