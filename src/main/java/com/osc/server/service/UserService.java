@@ -316,7 +316,7 @@ public class UserService extends BaseService<User> {
 	}
 	
 	@RequestMapping(value="/user/resetpassword", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ApiResponse resetPassword(HttpServletRequest request) {
+	public ApiResponse sendEmailResetRequest(HttpServletRequest request) {
 		
 		String email = request.getParameter("email");
 		Optional<User> userOptional = userRepository.findByEmail(email);
@@ -332,12 +332,13 @@ public class UserService extends BaseService<User> {
 		}
 		
 		user = userOptional.get();
-		token = jwtTokenProvider.createToken(user.getUsername(), user.getRole());
+		String username = user.getUsername();
+		token = jwtTokenProvider.createToken(username, user.getRole());
 		log.info("Token: "+token);
 		EmailUtil emailUtil = new EmailUtil();
 		
 		try {
-			if(!emailUtil.sendEmail(email, token)) {
+			if(!emailUtil.sendEmail(email, token, username)) {
 				//return new ResponseEntity<Object>("Error",HttpStatus.INTERNAL_SERVER_ERROR);
 				return new ApiResponse(false,"Sending Email from system was failed");	
 			}
@@ -351,20 +352,32 @@ public class UserService extends BaseService<User> {
 		//return new ResponseEntity<Object>("Success",HttpStatus.OK);	
 	}
 	
-	@GetMapping("/reset")
-	public ApiResponse resetPassword(@RequestParam("token") String token) {
+	@RequestMapping(value = "/reset", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ApiResponse resetPassword(HttpServletRequest request) {
 		
-		 if (token != null && jwtTokenProvider.validateToken(token)) {
-			 Authentication auth = jwtTokenProvider.getAuthentication(token);
-
-	         if (auth != null) {
-	        	 logger.info("Authorized Username: "+ this.jwtTokenProvider.getUsername(token));                            
-	        	 SecurityContextHolder.getContext().setAuthentication(auth);
-	        	 return new ApiResponse(true, "Please insert new password");
-	         }
-		 }
+		User userResponse = null;
 		
-		return new ApiResponse(false, "You are not passed security checking due to token expired or bad");
+		try {
+			String username = request.getParameter("username");
+			logger.info("username: "+ username);
+			String password = request.getParameter("password");
+			logger.info("password: "+ password);
+			User user = userRepository.findByUsername(username);
+			
+			if(user != null) {
+				user.setPassword(new BCryptPasswordEncoder().encode(password));
+				logger.info("Password updated..");
+				userResponse = userRepository.save(user);
+			}
+			
+			
+		}catch(Exception e) {
+			logger.error("Error:"+e.getMessage(), e);
+			return new ApiResponse(false, e.getMessage());
+		}
+		
+		
+		return new ApiResponse(true, "Your password has been reset successfully", userResponse);
 	}
 	
 }

@@ -38,11 +38,12 @@ public class EmailUtil {
 	private EmailProperties emailProperties;
 
 	
-	public boolean sendEmail (String email, String token) {
+	public boolean sendEmail (String email, String token, String username) {
 		log.info("Inside sendEmail1");
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("email", email);
 		data.put("token", token);
+		data.put("username", username);
 		
 		try {
 			if(sendEmail(data)) {
@@ -81,6 +82,7 @@ public class EmailUtil {
 		log.info("Inside sendEmail2");
 		String token = data.get("token");
 		String email = data.get("email");
+		String username = data.get("username");
 		
 		try {
 			log.info("Token-Inside sendEmail2: "+token);
@@ -111,7 +113,7 @@ public class EmailUtil {
 			message.setSentDate(new Date());
 
 			MimeBodyPart messageBodyPart = new MimeBodyPart();
-			messageBodyPart.setContent("Please klik the following link to reset your password, <br/> <a href = \"http://localhost:3000/reset?token=" +token+"\">Reset Password</a>", "text/html");
+			messageBodyPart.setContent("Please klik the following link to reset your password, <br/> <a href = \"http://localhost:3000/reset?token=" +token+"&username="+username+"\">Reset Password</a>", "text/html");
 
 			Multipart multipart = new MimeMultipart();
 			multipart.addBodyPart(messageBodyPart);
