@@ -111,7 +111,7 @@ public class EmailUtil {
 			message.setSentDate(new Date());
 
 			MimeBodyPart messageBodyPart = new MimeBodyPart();
-			messageBodyPart.setContent("Please klik the following link to reset your password, <br/> <a href = \"http://localhost:8080/reset?token=" +token+"\">Reset Password</a>", "text/html");
+			messageBodyPart.setContent("Please klik the following link to reset your password, <br/> <a href = \"http://localhost:3000/reset?token=" +token+"\">Reset Password</a>", "text/html");
 
 			Multipart multipart = new MimeMultipart();
 			multipart.addBodyPart(messageBodyPart);

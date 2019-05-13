@@ -111,8 +111,11 @@ public class JwtTokenProvider {
              * **/
             Token currentUser = tokenRepository.findByUsername(this.getUsername(token));
             logger.info("Current login username:"+this.getUsername(token));
-            Activity activity = new Activity(url, Instant.now(), currentUser);
-            activityRepository.save(activity);
+            
+            if(!url.equals("") || !url.isEmpty()) {
+            	Activity activity = new Activity(url, Instant.now(), currentUser);
+                activityRepository.save(activity);
+            } 
             
             return true;
         } catch (JwtException | IllegalArgumentException e) {

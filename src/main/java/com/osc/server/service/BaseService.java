@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * 1. Add Long data type in IBaseRepository
  */
 
-public class BaseService<T extends BaseModel>   {
+public class BaseService<T extends BaseModel> extends CrossOriginService {
     @Autowired
     private IBaseRepository<T, Long> repository;
 

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -348,6 +349,22 @@ public class UserService extends BaseService<User> {
 		
 		return new ApiResponse(true,"Reset password is being processed, check your email!");
 		//return new ResponseEntity<Object>("Success",HttpStatus.OK);	
+	}
+	
+	@GetMapping("/reset")
+	public ApiResponse resetPassword(@RequestParam("token") String token) {
+		
+		 if (token != null && jwtTokenProvider.validateToken(token)) {
+			 Authentication auth = jwtTokenProvider.getAuthentication(token);
+
+	         if (auth != null) {
+	        	 logger.info("Authorized Username: "+ this.jwtTokenProvider.getUsername(token));                            
+	        	 SecurityContextHolder.getContext().setAuthentication(auth);
+	        	 return new ApiResponse(true, "Please insert new password");
+	         }
+		 }
+		
+		return new ApiResponse(false, "You are not passed security checking due to token expired or bad");
 	}
 	
 }
