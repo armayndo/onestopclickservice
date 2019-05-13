@@ -33,4 +33,8 @@ public class ShopService {
 	public Product getAllProducts(@PathVariable Long id){
 		return productRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Product", id));
 	}
+	
+	
+	
+	
 }
