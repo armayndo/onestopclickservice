@@ -113,6 +113,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/v1/users/register").permitAll()
 	        .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()  
 	        .antMatchers("/auth/login").permitAll() //for hal browser login
+	        .antMatchers(HttpMethod.GET, "/api/v1/shop/**").permitAll()
 	        .antMatchers(HttpMethod.GET, "/browser/**").permitAll()
 	        .antMatchers(HttpMethod.GET, "/actuator/**").permitAll()
 //	        .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
