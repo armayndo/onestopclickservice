@@ -82,4 +82,7 @@ public class Product extends BaseModel{
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	private Set<ProductReview> productReviews;
+	
+	
+	
 }
