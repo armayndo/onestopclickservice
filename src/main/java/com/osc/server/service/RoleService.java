@@ -6,6 +6,8 @@ import com.osc.server.model.Role;
 import com.osc.server.model.User;
 import com.osc.server.repository.IPermissionRepository;
 import com.osc.server.repository.IRoleRepository;
+import com.osc.server.repository.IUserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ import java.util.Set;
 public class RoleService extends BaseService<Role> {
     @Autowired
     private IRoleRepository roleRepository;
+    
+    @Autowired
+    private IUserRepository userRepository;
 
     @Autowired
     private IPermissionRepository permissionRepository;
@@ -67,6 +72,16 @@ public class RoleService extends BaseService<Role> {
             role.getPermissions().remove(permission);
             return this.roleRepository.save(role).getPermissions();
         }).orElseThrow(() -> new ResourceNotFoundException("Role", id));
+    }
+    
+    /*
+     * Service to get All roles owned by an user
+     * **/
+    @GetMapping("/user/roles/{id}")
+    public Set<Role> getRolesByUserId(@PathVariable Long id){
+        return this.userRepository.findById(id).map((user) -> {
+            return user.getRoles();
+        }).orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 }
 
