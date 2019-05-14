@@ -37,13 +37,14 @@ public class Purchase extends BaseModel{
 	@JoinColumn(name="purchase_id",nullable=false)
 	private Set<PurchaseDetail> purchaseDetails = new HashSet<>();
 	
-	@OneToOne(mappedBy="purchase")
-	@JsonIgnore
-	private Payment payment;
 	
 	@OneToOne(cascade= {CascadeType.MERGE,CascadeType.PERSIST})
 	@JoinColumn(name="customer_id")
 	private User customer;
+	
+	@OneToOne(mappedBy="purchase")
+	@JsonIgnore
+	private Payment payment;
 	
 	
 	

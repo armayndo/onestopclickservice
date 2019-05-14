@@ -29,7 +29,7 @@ import com.osc.server.repository.IUserRepository;
 
 @RestController
 @RequestMapping("/api/v1/purchases")
-public class PurchaseService{
+public class PurchaseService extends BaseService<Purchase>{
 	
 	@Autowired
 	IPurchaseRepository purchaseRepository;
@@ -45,7 +45,7 @@ public class PurchaseService{
 	
 	
 	
-	@PostMapping
+	@PostMapping("/main")
 	public Purchase saveWithDetails(@RequestBody Purchase purchase) {
 		
 		// check customer as user
