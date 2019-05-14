@@ -1,11 +1,15 @@
 package com.osc.security;
 
+import java.util.ArrayList;
+
 /**
  * Created by Syarif Hidayat on 22/04/2019.
  */
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.osc.server.model.Role;
 import com.osc.server.model.User;
 
 
@@ -34,10 +39,26 @@ public class AppUserDetails implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		String role = user.getRole();
-		System.out.println("Role: "+ role);
+		//String role = user.getRole();
+		Set<Role> roles = user.getRoles();
+		List<GrantedAuthority> roleList = new ArrayList<GrantedAuthority>();
+		int count = 0;
+		
+		if(roles.isEmpty() || roles == null) {
+			return Collections.singleton(new SimpleGrantedAuthority(user.getRole()));
+		}
+		
+		for(Role role : roles) {
+			count++;
+			roleList.add(new SimpleGrantedAuthority(role.getRoleName()));
+			logger.info("Role ke-"+count+":"+ role.getRoleName());
+		}
+		
+
 		logger.info("getAuthorities from EmployeeUserDetails is invoking....");
-		return Collections.singleton(new SimpleGrantedAuthority(role));
+		//return Collections.singleton(new SimpleGrantedAuthority(role));
+		
+		return roleList;
 	}
 
 	@Override

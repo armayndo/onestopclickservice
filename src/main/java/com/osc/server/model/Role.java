@@ -25,7 +25,7 @@ public class Role extends BaseModel{
     private String roleDescription;
 
     @ManyToMany(
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             cascade = {CascadeType.MERGE, CascadeType.PERSIST},
             mappedBy = "roles"
     )

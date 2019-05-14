@@ -49,7 +49,7 @@ public class User extends BaseModel {
 	private boolean isEnabled;
 
 	@ManyToMany(
-			fetch = FetchType.LAZY,
+			fetch = FetchType.EAGER,
 			cascade = {CascadeType.MERGE, CascadeType.PERSIST}
 	)
 	@JoinTable(
