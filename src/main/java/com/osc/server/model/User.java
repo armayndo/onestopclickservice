@@ -67,4 +67,9 @@ public class User extends BaseModel {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	private Set<ProductReview> productReviews;
+	
+	@OneToOne(mappedBy="user")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	private UserAccount userAccount;
 }
