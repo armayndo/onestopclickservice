@@ -1,7 +1,14 @@
 package com.osc.server.repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import javax.transaction.Transactional;
+
+import org.springframework.data.jpa.repository.Query;
+
+import com.osc.server.model.Role;
 import com.osc.server.model.User;
 
 /**

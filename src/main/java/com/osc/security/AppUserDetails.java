@@ -11,14 +11,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.osc.server.model.Role;
 import com.osc.server.model.User;
+import com.osc.server.repository.IUserRepository;
+import com.osc.server.service.HelperServices;
 
 
 public class AppUserDetails implements UserDetails {
@@ -29,11 +35,18 @@ public class AppUserDetails implements UserDetails {
 	private static final long serialVersionUID = 1L;
 	private User user;
 	
+	@Autowired
+	IUserRepository userRepository;
+	
+	//@Autowired
+	//HelperServices helperServices;
+	
 	private Logger logger = LoggerFactory.getLogger(AppUserDetails.class);
 	
 	public AppUserDetails(User user) {
 		super();
 		this.user = user;
+		//Hibernate.initialize(user.getId());
 		logger.info("EmployeeUserDetails is invoking....");
 	}
 
@@ -41,10 +54,14 @@ public class AppUserDetails implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		//String role = user.getRole();
 		Set<Role> roles = user.getRoles();
+		logger.info("User Id:"+ user.getId());
+		//Set<Role> roles = helperServices.getRolesByUserId(user.getId());
+		
 		List<GrantedAuthority> roleList = new ArrayList<GrantedAuthority>();
 		int count = 0;
 		
 		if(roles.isEmpty() || roles == null) {
+			logger.info("Role from User:"+user.getRole());
 			return Collections.singleton(new SimpleGrantedAuthority(user.getRole()));
 		}
 		
