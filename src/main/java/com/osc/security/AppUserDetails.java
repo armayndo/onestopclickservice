@@ -52,8 +52,8 @@ public class AppUserDetails implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		//String role = user.getRole();
-		Set<Role> roles = user.getRoles();
+		String role = user.getRole();
+		/*Set<Role> roles = user.getRoles();
 		logger.info("User Id:"+ user.getId());
 		//Set<Role> roles = helperServices.getRolesByUserId(user.getId());
 		
@@ -72,10 +72,10 @@ public class AppUserDetails implements UserDetails {
 		}
 		
 
-		logger.info("getAuthorities from EmployeeUserDetails is invoking....");
-		//return Collections.singleton(new SimpleGrantedAuthority(role));
+		logger.info("getAuthorities from EmployeeUserDetails is invoking....");*/
+		return Collections.singleton(new SimpleGrantedAuthority(role));
 		
-		return roleList;
+		//return roleList;
 	}
 
 	@Override

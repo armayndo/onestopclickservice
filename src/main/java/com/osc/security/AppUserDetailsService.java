@@ -21,17 +21,18 @@ public class AppUserDetailsService implements UserDetailsService {
 	@Autowired
 	private IUserRepository userRepository;
 	
-	@SuppressWarnings("unused")
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		logger.info("loadUserByUsername from EmployeeUserDetailsService is invoking....");
+		logger.info("loadUserByUsername from EmployeeUserDetailsService is invoking....");
 		User user = userRepository.findByUsername(username);
 		
-		logger.info("Username: "+user.getUsername()+", Role: "+user.getRole());
-		
 		if(user == null) {
-			throw new UsernameNotFoundException("User not found");
+			logger.info("User is null from loadUserByUsername");
 		}
+		
+		logger.info("Username: "+user.getUsername()+", Role: "+user.getRole());
 		
 		return new AppUserDetails(user);
 	}

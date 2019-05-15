@@ -89,7 +89,7 @@ public class AuthService extends CrossOriginService{
             logger.info("Username from client: "+ username);
             logger.info("Pasword from client: "+ request.getParameter("password"));
             
-
+      
             try {
                 authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, request.getParameter("password")));
             } catch (DisabledException e) {
@@ -97,8 +97,8 @@ public class AuthService extends CrossOriginService{
             } catch (BadCredentialsException e) {
                 throw new BadCredentialsException("Bad credentials!", e);
             }catch (Exception e) {
-                logger.info("Signin Failed"+ e.getMessage());
-                
+                logger.info("Error Login: "+e.getMessage(), e);
+                throw new BadCredentialsException("Bad credentials!", e);
             }
 
 
