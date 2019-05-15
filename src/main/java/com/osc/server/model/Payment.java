@@ -24,9 +24,10 @@ import lombok.Setter;
 public class Payment extends BaseModel{
 	private Date paymentDate;
 	private BigDecimal paymentAmount;
+	private String paymentReferenceNumber;
 	
 	@OneToOne(cascade= {CascadeType.MERGE,CascadeType.PERSIST})
-	@JoinColumn(name="purchase_id",referencedColumnName="id")
+	@JoinColumn(name="purchase_id")
 	private Purchase purchase;
 	
 	private Integer paymentMethod; // 1 = user balance , 2 = paypal
