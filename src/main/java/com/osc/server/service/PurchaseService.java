@@ -29,7 +29,7 @@ import com.osc.server.repository.IUserRepository;
 
 @RestController
 @RequestMapping("/api/v1/purchases")
-public class PurchaseService{
+public class PurchaseService extends BaseService<Purchase>{
 	
 	@Autowired
 	IPurchaseRepository purchaseRepository;
@@ -45,55 +45,14 @@ public class PurchaseService{
 	
 	
 	
-	@PostMapping
+	@PostMapping("/main")
 	public Purchase saveWithDetails(@RequestBody Purchase purchase) {
 		
-		// check customer as user
-		User customer = userRepository.findById(purchase.getCustomer().getId())
-				.orElseThrow(()->new ResourceNotFoundException("User",purchase.getCustomer().getId()));
-		purchase.setCustomer(customer);
 		
-		
-		// check product exist
-		purchase.setPurchasetotal(BigDecimal.ZERO);
-		
-		Set<PurchaseDetail> purchaseDetails = purchase.getPurchaseDetails().stream().map(purchaseDetail->{
-			
-			PurchaseDetail newPurchaseDetail = new PurchaseDetail();
-			Optional<Product> product = productRepository.findById(purchaseDetail.getProduct().getId());
-			
-			if(!product.isPresent()) {
-				throw new ResourceNotFoundException("Product",purchaseDetail.getProduct().getId());
-			}
-			
-			
-			
-			BigDecimal totalPerProduct = product.get().getPrice().multiply(BigDecimal.valueOf(purchaseDetail.getPurchaseDetailQuantity()));
-			
-			purchase.setPurchaseQuantity(purchase.getPurchaseQuantity()+1);
-
-			purchase.setPurchasetotal(purchase.getPurchasetotal().add(totalPerProduct));
-		
-			newPurchaseDetail.setProduct(product.get());
-			newPurchaseDetail.setPurchaseDetailTotalPrice(totalPerProduct);
-			newPurchaseDetail.setPurchaseDetailQuantity(purchaseDetail.getPurchaseDetailQuantity());
-			return purchaseDetailRepository.save(newPurchaseDetail);
-
-	
-		}).collect(Collectors.toSet());
-		
-
-		/// generate purchase number
-		int intTime = (int) (new Date().getTime()/1000);
-		purchase.setPurchaseNo(Integer.toString(intTime));
-		purchase.setPurchaseDate(new Date());
-		purchase.setPurchaseDetails(purchaseDetails);
-		
-		Purchase newPurchase = purchaseRepository.save(purchase);
 		
 
 		
-		return newPurchase;
+		return null;
 	}
 	
 	
