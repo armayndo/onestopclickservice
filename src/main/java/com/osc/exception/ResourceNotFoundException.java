@@ -13,4 +13,11 @@ public class ResourceNotFoundException extends RuntimeException{
     public ResourceNotFoundException(String entity, Long id) {
         super(entity + " id " + id + " not found");
     }
+    
+    /*
+     * Added by Tommy Toban on 15/05/2019 
+     */
+    public ResourceNotFoundException(String entity,String field,String value) {
+        super(entity+" "+field+" "+value+" not found");
+    }
 }
