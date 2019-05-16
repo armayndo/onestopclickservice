@@ -23,7 +23,7 @@ spring:
     datasource:
         url: jdbc:mysql://localhost:3306/spring?useSSL=false
         username: root
-        password: Qwerty123
+        password: Diah!)@(*
         driverClassName: com.mysql.cj.jdbc.Driver
 
     jpa:
