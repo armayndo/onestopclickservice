@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @RequestMapping("/auth")
@@ -99,22 +100,26 @@ public class AuthService extends CrossOriginService{
     			logger.info("Authenticate User ");
     		    authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, request.getParameter("password")));
     		}catch (DisabledException e) {
-    			model.put("Error", "User is disabled");
+    			model.put("error", "User is disabled");
+    			model.put("status", false);
     			return ok(model);
     		    //throw new DisabledException("User is disabled!", e);
     		    
     		}catch (BadCredentialsException e) {
-    			model.put("Error", "Bad credentials!");
+    			model.put("error", "Bad credentials!");
+    			model.put("status", false);
     			return ok(model);
     		    //throw new BadCredentialsException("Bad credentials!", e);
     		}catch(InternalAuthenticationServiceException e) {
-    			model.put("Error", "Username not found");
+    			model.put("error", "Username not found");
+    			model.put("status", false);
     			return ok(model);
     			//throw new InternalAuthenticationServiceException("Username not found!", e);
     		}
     		catch(Exception e) {
     		    logger.info("Error Login: "+e.getMessage(), e);
-    		    model.put("Error", "Internal Server Error");
+    		    model.put("error", "Internal Server Error");
+    		    model.put("status", false);
     		    return ok(model);
     		    //throw new BadCredentialsException("Bad credentials!", e);
     		}
@@ -137,6 +142,8 @@ public class AuthService extends CrossOriginService{
     			tokenRepository.save(tokenData);
     		}
     		
+    		model.put("status", true);
+    		model.put("error:", null);
     		model.put("username", username);
     		model.put("token", token);
         }
