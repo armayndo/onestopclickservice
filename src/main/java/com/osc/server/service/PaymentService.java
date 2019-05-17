@@ -1,6 +1,7 @@
 package com.osc.server.service;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -20,10 +21,12 @@ import com.osc.server.model.Product;
 import com.osc.server.model.Purchase;
 import com.osc.server.model.PurchaseDetail;
 import com.osc.server.model.User;
+import com.osc.server.model.UserAccount;
 import com.osc.server.repository.IPaymentRepository;
 import com.osc.server.repository.IProductRepository;
 import com.osc.server.repository.IPurchaseDetailRepository;
 import com.osc.server.repository.IPurchaseRepository;
+import com.osc.server.repository.IUserAccountRepository;
 import com.osc.server.repository.IUserRepository;
 
 /**
@@ -49,14 +52,22 @@ public class PaymentService extends BaseService<Payment>{
 	@Autowired
 	IUserRepository userRepository;
 	
+	@Autowired
+	IUserAccountRepository userAccountRepository;
+	
 	@PostMapping("/main")
 	@Transactional
 	public Payment doPayment(@RequestBody Payment payment) {
 		
 		Purchase purchase = payment.getPurchase();
 		// check customer as user
-				User customer = userRepository.findById(purchase.getCustomer().getId())
-						.orElseThrow(()->new ResourceNotFoundException("User",purchase.getCustomer().getId()));
+//				User customer = userRepository.findById(purchase.getCustomer().getId())
+//						.orElseThrow(()->new ResourceNotFoundException("User",purchase.getCustomer().getId()));
+//				
+		User customer = Optional.of(userRepository.findByUsername(purchase.getCustomer().getUsername()))
+				.orElseThrow(()->new ResourceNotFoundException("User",purchase.getCustomer().getId()));
+		
+		
 				purchase.setCustomer(customer);
 				
 				
@@ -98,13 +109,23 @@ public class PaymentService extends BaseService<Payment>{
 				Purchase newPurchase = purchaseRepository.save(purchase);
 		
 				
-//		// check purchase
-//		Long purchaseID = payment.getPurchase().getId();
-//		Purchase purchase = purchaseRepository.findById(purchaseID)
-//				.orElseThrow(()->new ResourceNotFoundException("Purchase", purchaseID));
-//		
+
 		payment.setPurchase(newPurchase);
 		payment.setPaymentDate(new Date());
+		
+		//check if use user balance
+		if(payment.getPaymentMethod()==1) {
+			
+			UserAccount userAccount = userAccountRepository.findByUserId(customer.getId())
+					.orElseThrow(()->new ResourceNotFoundException("User Account",customer.getId()));
+			
+			userAccount.setBalance(userAccount.getBalance().subtract(payment.getPaymentAmount()));
+			userAccountRepository.save(userAccount);
+			
+			payment.setPaymentReferenceNumber("UB-".concat(LocalTime.now().toString()));
+			
+			
+		}
 		
 		return paymentRepository.save(payment);
 	}
