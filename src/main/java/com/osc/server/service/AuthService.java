@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -49,6 +50,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -56,7 +58,7 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthService {
+public class AuthService extends CrossOriginService{
 
    /* @Autowired
     AuthenticationManager authenticationManager;*/
@@ -84,51 +86,62 @@ public class AuthService {
     @RequestMapping(value="/signin", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity signin(HttpServletRequest request) {
 
-        try {
-            String username = request.getParameter("username");
-            logger.info("Username from client: "+ username);
-            logger.info("Pasword from client: "+ request.getParameter("password"));
-            
-      
-            try {
-                authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, request.getParameter("password")));
-            } catch (DisabledException e) {
-                throw new DisabledException("User is disabled!", e);
-            } catch (BadCredentialsException e) {
-                throw new BadCredentialsException("Bad credentials!", e);
-            }catch (Exception e) {
-                logger.info("Error Login: "+e.getMessage(), e);
-                throw new BadCredentialsException("Bad credentials!", e);
-            }
+    	Map<Object, Object> model = new HashMap<>();
+    	
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        
+        logger.info("Username from client: "+ username);
+		logger.info("Pasword from client: "+ password);
+        
+        if(username != null && password != null) {
+        	try {
+    			logger.info("Authenticate User ");
+    		    authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, request.getParameter("password")));
+    		}catch (DisabledException e) {
+    			model.put("Error", "User is disabled");
+    			return ok(model);
+    		    //throw new DisabledException("User is disabled!", e);
+    		    
+    		}catch (BadCredentialsException e) {
+    			model.put("Error", "Bad credentials!");
+    			return ok(model);
+    		    //throw new BadCredentialsException("Bad credentials!", e);
+    		}catch(InternalAuthenticationServiceException e) {
+    			model.put("Error", "Username not found");
+    			return ok(model);
+    			//throw new InternalAuthenticationServiceException("Username not found!", e);
+    		}
+    		catch(Exception e) {
+    		    logger.info("Error Login: "+e.getMessage(), e);
+    		    model.put("Error", "Internal Server Error");
+    		    return ok(model);
+    		    //throw new BadCredentialsException("Bad credentials!", e);
+    		}
 
 
-            String token = jwtTokenProvider.createToken(username, this.users.findByUsername(username).getRole());
-            logger.info("Generated Token: "+ token);
-            
-            /*
-             * Save generated token with its username to databases if the username doesn't exist yet
-             * or just update the token if its username is exist
-             * */
-            Token tokenData = tokenRepository.findByUsername(username);
-            
-            if(tokenData == null) {
-            	tokenRepository.save(new Token(username, token, Instant.now()));
-            }else {
-            	tokenData.setToken(token);
-            	tokenData.setTime(Instant.now());
-            	tokenRepository.save(tokenData);
-            }
-            
-
-            Map<Object, Object> model = new HashMap<>();
-            model.put("username", username);
-            model.put("token", token);
-
-            return ok(model);
-
-        } catch (AuthenticationException e) {
-            throw new BadCredentialsException("Invalid username/password supplied");
+    		String token = jwtTokenProvider.createToken(username, this.users.findByUsername(username).getRole());
+    		logger.info("Generated Token: "+ token);
+    		
+    		/*
+    		 * Save generated token with its username to databases if the username doesn't exist yet
+    		 * or just update the token if its username is exist
+    		 * */
+    		Token tokenData = tokenRepository.findByUsername(username);
+    		
+    		if(tokenData == null) {
+    			tokenRepository.save(new Token(username, token, Instant.now()));
+    		}else {
+    			tokenData.setToken(token);
+    			tokenData.setTime(Instant.now());
+    			tokenRepository.save(tokenData);
+    		}
+    		
+    		model.put("username", username);
+    		model.put("token", token);
         }
+           
+		return ok(model);
     }
     
     @RequestMapping(value="/logins", method=RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
