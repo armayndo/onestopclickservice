@@ -21,7 +21,7 @@ user:
 
 spring:
     datasource:
-        url: jdbc:mysql://localhost:3306/spring?useSSL=false
+        url: jdbc:mysql://localhost:3306/spring?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
         username: root
         password: Qwerty123
         driverClassName: com.mysql.cj.jdbc.Driver
