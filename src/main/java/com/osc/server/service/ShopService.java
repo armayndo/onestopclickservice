@@ -16,7 +16,7 @@ import com.osc.server.repository.IProductRepository;
 /**
  * Created by Tommy Toban on 10/05/2019.
  */
-@CrossOrigin("http://localhost:3000")
+//@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/shop")
 public class ShopService {
