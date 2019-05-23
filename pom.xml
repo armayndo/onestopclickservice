@@ -6,8 +6,8 @@
 	<groupId>com.folk</groupId>
 	<artifactId>application</artifactId>
 	<version>0.0.1</version>
-	<!--<packaging>war</packaging>-->
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
+	<!--<packaging>jar</packaging>-->
 
 	<name>application</name>
 	<description>Folk project</description>
@@ -143,7 +143,8 @@
 	</dependencies>
 
 	<build>
-		<finalName>OneStopClick V.${project.version}</finalName>
+		<!--<finalName>OneStopClick V.${project.version}</finalName>-->
+		<finalName>oscservice</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
