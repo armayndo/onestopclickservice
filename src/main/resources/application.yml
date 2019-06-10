@@ -2,7 +2,7 @@
 management.security.enabled: "false"
 management.security.roles: ADMIN
 management.endpoints.web.exposure.include: '*'
-management.endpoints.web.cors.allowed-origins: http://13.229.224.255:3000
+management.endpoints.web.cors.allowed-origins: http://18.138.248.28:3000
 management.endpoints.web.cors.allowed-methods: GET
 jwt.header: Authorization
 jwt.secret: mySecret
@@ -22,7 +22,7 @@ user:
 spring:
     datasource:
 
-        url: jdbc:mysql://13.229.224.255:3306/osc_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+        url: jdbc:mysql://18.138.248.28:3306/osc_db?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
         username: osc_user
         password: oscae1189OLP
         driverClassName: com.mysql.cj.jdbc.Driver
@@ -73,4 +73,4 @@ app:
     # redirectUri mentioned by the client in the /oauth2/authorize request.
     # We're not using cookies because they won't work well in mobile clients.
     authorizedRedirectUris:
-      - http://13.229.224.255:3000/oauth2/redirect
+      - http://18.138.248.28:3000/oauth2/redirect
